@@ -1,0 +1,858 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI GRADER 2.0 | Professional Education</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+:root{
+ --bg:#090d19;--side:#0d1425;--card:#121c31;
+ --card2:#182640;--line:#273653;--text:#edf2ff;
+ --muted:#8999b6;--purple:#9575ff;--blue:#4aabff;
+ --green:#39dca6;--red:#ff6486;--yellow:#ffc66e;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);
+ font-family:Inter,Arial,sans-serif;min-height:100vh}
+button,input,textarea,select{font:inherit}
+button{cursor:pointer;transition:.2s}
+button:hover{filter:brightness(1.15);transform:translateY(-1px)}
+.app{display:flex;min-height:100vh}
+.sidebar{width:250px;position:fixed;inset:0 auto 0 0;
+ background:var(--side);border-right:1px solid var(--line);
+ padding:24px 15px;overflow:auto;z-index:10}
+.brand{padding:5px 12px 30px}
+.brand-name{font-size:24px;font-weight:900;letter-spacing:-1px}
+.brand-name span{color:var(--purple)}
+.brand-sub{font-size:9px;color:var(--muted);letter-spacing:3px;margin-top:6px}
+.nav-title{font-size:9px;letter-spacing:2px;color:#657693;
+ padding:17px 12px 8px;font-weight:700}
+.nav{width:100%;display:flex;align-items:center;gap:12px;
+ padding:12px 13px;border:1px solid transparent;border-radius:10px;
+ color:#a4b1ca;background:none;text-align:left;font-size:12px;margin:3px 0}
+.nav .ico{width:20px;text-align:center;font-size:15px}
+.nav.active{background:linear-gradient(100deg,#392c68,#1c2d4b);
+ color:white;border-color:#57478d}
+.nav:hover{background:#1c2943;color:white}
+.sidebar-bottom{border-top:1px solid var(--line);margin-top:25px;padding:18px 10px}
+.online{font-size:10px;color:var(--green)}
+.main{margin-left:250px;width:calc(100% - 250px);padding:25px 35px;max-width:1700px}
+.top{display:flex;justify-content:space-between;align-items:center;
+ border-bottom:1px solid var(--line);padding-bottom:20px;margin-bottom:30px;gap:12px}
+.top h2{font-size:19px;margin:0 0 5px}
+.muted{color:var(--muted);font-size:11px;line-height:1.7}
+.user{display:flex;align-items:center;gap:10px}
+.avatar{height:39px;width:39px;display:grid;place-items:center;
+ border-radius:13px;background:linear-gradient(135deg,#9a73ff,#42aaff);font-weight:900}
+select,input,textarea{width:100%;background:#101a2e;color:var(--text);
+ border:1px solid var(--line);border-radius:9px;padding:12px;outline:none}
+select:focus,input:focus,textarea:focus{border-color:var(--purple)}
+select option{background:#101a2e}
+textarea{resize:vertical;min-height:100px}
+.btn{padding:11px 16px;border:0;border-radius:9px;font-size:11px;font-weight:700}
+.primary{background:linear-gradient(110deg,#8661f5,#478eff);color:white}
+.secondary{background:#263653;color:#e7edff}
+.outline{background:transparent;color:#bdc9e3;border:1px solid var(--line)}
+.danger{background:#51283a;color:#ff9db1}
+.success{background:#174b41;color:#64edc0}
+.page{display:none}
+.page.active{display:block;animation:show .3s ease}
+@keyframes show{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.heading{font-size:29px;font-weight:900;letter-spacing:-1px;margin:0 0 8px}
+.subtitle{font-size:12px;color:var(--muted);margin-bottom:26px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:15px;margin-bottom:18px}
+.card{background:linear-gradient(145deg,#16223a,#111a2d);
+ border:1px solid var(--line);border-radius:15px;padding:20px;margin-bottom:16px}
+.card:hover{border-color:#574d85}
+.stat-label{font-size:11px;color:var(--muted)}
+.stat-number{font-size:31px;font-weight:900;margin:13px 0 5px;letter-spacing:-1px}
+.stat-icon{float:right;font-size:21px;background:#29274c;padding:9px;border-radius:11px}
+.stat-foot{font-size:10px;color:var(--green)}
+.two{display:grid;grid-template-columns:1.5fr 1fr;gap:16px}
+.three{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.card-title{font-size:13px;font-weight:800;margin-bottom:17px}
+.activity{display:flex;justify-content:space-between;align-items:center;
+ gap:10px;padding:13px 0;border-bottom:1px solid var(--line);font-size:11px}
+.activity:last-child{border:0}
+.bar-row{display:grid;grid-template-columns:90px 1fr 35px;gap:10px;
+ align-items:center;margin:17px 0;font-size:10px;color:var(--muted)}
+.bar{height:8px;border-radius:20px;background:#2a3650;overflow:hidden}
+.bar i{height:100%;display:block;background:linear-gradient(90deg,#906aff,#48b3ff);
+ border-radius:20px}
+.field{margin-bottom:15px}
+.field label{display:block;font-size:11px;color:#aab7d0;margin-bottom:8px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+.tag{font-size:9px;background:#302951;color:#c5b4ff;padding:5px 9px;border-radius:6px}
+.green{color:var(--green)}.red{color:var(--red)}.yellow{color:var(--yellow)}
+.question{background:#192640;border:1px solid var(--line);border-radius:12px;
+ padding:17px;margin-bottom:13px}
+.question h3{font-size:12px;line-height:1.7;margin:0 0 12px}
+.option{display:flex;align-items:center;gap:10px;background:#23314d;
+ padding:12px;border-radius:8px;margin:7px 0;font-size:11px;cursor:pointer}
+.option:hover{background:#34345f}
+.option input{width:auto;accent-color:var(--purple)}
+.result{padding:20px;border-radius:12px;background:#192a40;margin:15px 0}
+.score{font-size:43px;font-weight:900;color:var(--green)}
+.empty{text-align:center;padding:25px;color:var(--muted);font-size:12px}
+.pill{font-size:10px;padding:5px 9px;background:#263653;border-radius:20px}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:15px}
+table{width:100%;border-collapse:collapse;font-size:11px}
+th,td{text-align:left;padding:13px 9px;border-bottom:1px solid var(--line)}
+th{color:var(--muted)}
+.footer{text-align:center;color:#62718e;font-size:9px;padding:35px}
+#toast{position:fixed;right:25px;bottom:25px;background:#263d58;
+ border:1px solid #5672a1;padding:14px 20px;border-radius:10px;
+ font-size:12px;display:none;z-index:100;box-shadow:0 10px 30px #0008}
+.progress{height:7px;background:#2b3852;border-radius:20px;overflow:hidden;margin-top:10px}
+.progress i{display:block;height:100%;background:linear-gradient(90deg,#9272ff,#42b7ff)}
+.hero{background:linear-gradient(115deg,#33265d,#1b3761);
+ border:1px solid #594b89;border-radius:17px;padding:25px;margin-bottom:20px}
+.hero h2{font-size:22px;margin:0 0 9px}
+.hero p{color:#c1c8e7;font-size:11px;line-height:1.8}
+.chat{max-height:350px;overflow:auto;margin-bottom:15px}
+.message{padding:13px;margin:10px 0;border-radius:10px;font-size:12px;
+ line-height:1.7;background:#24324d}
+.message.me{background:#302a55;margin-left:35px}
+@media(max-width:1050px){
+ .grid{grid-template-columns:repeat(2,1fr)}
+ .main{padding:20px}
+ .two{grid-template-columns:1fr}
+}
+@media(max-width:650px){
+ .sidebar{width:65px;padding:12px 5px}
+ .brand{padding:8px 2px}
+ .brand-name{font-size:12px}
+ .brand-sub,.nav-title,.nav-text,.sidebar-bottom{display:none}
+ .nav{justify-content:center;padding:13px 2px}
+ .nav .ico{font-size:17px}
+ .main{margin-left:65px;width:calc(100% - 65px);padding:12px}
+ .grid{gap:8px;grid-template-columns:1fr 1fr}
+ .card{padding:13px}
+ .stat-number{font-size:23px}
+ .heading{font-size:22px}
+ .form-grid,.three{grid-template-columns:1fr}
+ .top h2{font-size:14px}
+ .top{margin-bottom:22px}
+ .avatar{width:32px;height:32px}
+ .bar-row{grid-template-columns:65px 1fr 30px;gap:5px}
+ .hero{padding:17px}
+}
+@media print{
+ .sidebar,.top,.no-print,button{display:none!important}
+ .main{margin:0;width:100%;padding:10px}
+ body{background:white;color:black}
+ .card,.question,.result{background:white;color:black}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<aside class="sidebar">
+ <div class="brand">
+  <div class="brand-name">AI <span>GRADER</span></div>
+  <div class="brand-sub">PROFESSIONAL 2.0</div>
+ </div>
+
+ <div class="nav-title">WORKSPACE</div>
+ <button class="nav active" onclick="go('dashboard',this)"><span class="ico">▦</span><span class="nav-text">Главная панель</span></button>
+ <button class="nav" onclick="go('checker',this)"><span class="ico">◈</span><span class="nav-text">Проверка знаний</span></button>
+ <button class="nav" onclick="go('builder',this)"><span class="ico">＋</span><span class="nav-text">Конструктор тестов</span></button>
+ <button class="nav" onclick="go('assistant',this)"><span class="ico">✧</span><span class="nav-text">AI Assistant</span></button>
+
+ <div class="nav-title">MANAGEMENT</div>
+ <button class="nav" onclick="go('students',this)"><span class="ico">♙</span><span class="nav-text">Студенты</span></button>
+ <button class="nav" onclick="go('bank',this)"><span class="ico">▤</span><span class="nav-text">База вопросов</span></button>
+ <button class="nav" onclick="go('history',this)"><span class="ico">◷</span><span class="nav-text">История проверок</span></button>
+
+ <div class="nav-title">ANALYTICS</div>
+ <button class="nav" onclick="go('analytics',this)"><span class="ico">▥</span><span class="nav-text">Аналитика</span></button>
+ <button class="nav" onclick="go('leaderboard',this)"><span class="ico">★</span><span class="nav-text">Рейтинг</span></button>
+ <button class="nav" onclick="go('reports',this)"><span class="ico">▧</span><span class="nav-text">Отчёты</span></button>
+
+ <div class="nav-title">SYSTEM</div>
+ <button class="nav" onclick="go('settings',this)"><span class="ico">⚙</span><span class="nav-text">Настройки</span></button>
+
+ <div class="sidebar-bottom">
+  <div class="online">● SYSTEM ONLINE</div>
+  <div class="muted">AI GRADER v2.0.0</div>
+ </div>
+</aside>
+
+<main class="main">
+<header class="top">
+ <div>
+  <h2 id="pageTitle">Главная панель</h2>
+  <div class="muted">AI GRADER / Smart Education Platform</div>
+ </div>
+ <div class="user">
+  <select id="role" style="width:130px" onchange="roleChange()">
+   <option value="teacher">Преподаватель</option>
+   <option value="student">Студент</option>
+  </select>
+  <div class="avatar">AI</div>
+ </div>
+</header>
+
+<!-- DASHBOARD -->
+<section class="page active" id="dashboard">
+ <div class="hero">
+  <span class="tag">INTELLIGENT EDUCATION</span>
+  <h2>Будущее образования начинается здесь.</h2>
+  <p>Единая платформа для проверки знаний, анализа успеваемости и автоматизации образовательных процессов.</p>
+  <button class="btn primary" onclick="go('checker')">Начать проверку →</button>
+ </div>
+
+ <div class="grid">
+  <div class="card"><span class="stat-icon">♙</span><div class="stat-label">Всего студентов</div><div class="stat-number" id="sStudents">0</div><div class="stat-foot">Зарегистрировано</div></div>
+  <div class="card"><span class="stat-icon">◈</span><div class="stat-label">Проверки</div><div class="stat-number" id="sChecks">0</div><div class="stat-foot">Всего попыток</div></div>
+  <div class="card"><span class="stat-icon">▥</span><div class="stat-label">Средний результат</div><div class="stat-number" id="sAvg">0%</div><div class="stat-foot">Общая успеваемость</div></div>
+  <div class="card"><span class="stat-icon">▤</span><div class="stat-label">Вопросы</div><div class="stat-number" id="sQuestions">0</div><div class="stat-foot">В базе платформы</div></div>
+ </div>
+
+ <div class="two">
+  <div class="card">
+   <div class="card-title">Последние результаты</div>
+   <div id="recent"></div>
+  </div>
+  <div class="card">
+   <div class="card-title">Средний балл по тестам</div>
+   <div id="dashboardBars"></div>
+  </div>
+ </div>
+
+ <div class="card">
+  <div class="card-title">Быстрые действия</div>
+  <div class="actions">
+   <button class="btn primary" onclick="go('builder')">＋ Создать тест</button>
+   <button class="btn secondary" onclick="go('students')">Добавить студента</button>
+   <button class="btn secondary" onclick="go('reports')">Открыть отчёты</button>
+   <button class="btn secondary" onclick="go('assistant')">AI Assistant</button>
+  </div>
+ </div>
+</section>
+
+<!-- CHECKER -->
+<section class="page" id="checker">
+ <h1 class="heading">Проверка знаний</h1>
+ <p class="subtitle">Автоматическая оценка результатов и анализ ответов.</p>
+ <div class="card">
+  <div class="form-grid">
+   <div class="field"><label>ФИО студента</label><input id="checkName" placeholder="Введите имя"></div>
+   <div class="field"><label>Группа</label><input id="checkGroup" placeholder="Например, ПО-21"></div>
+  </div>
+  <div class="field"><label>Выберите тест</label><select id="checkTest" onchange="renderQuiz()"></select></div>
+  <div id="quiz"></div>
+  <button class="btn primary" onclick="submitQuiz()">Завершить проверку →</button>
+  <div id="quizResult"></div>
+ </div>
+
+ <div class="card">
+  <div class="card-title">Проверка письменного ответа</div>
+  <p class="muted">Сравнение с критериями и ключевыми понятиями преподавателя.</p>
+  <div class="field"><label>Вопрос</label><textarea id="essayQuestion" placeholder="Напишите вопрос задания"></textarea></div>
+  <div class="field"><label>Эталонный ответ / ключевые понятия</label><textarea id="essayKeys" placeholder="Например: алгоритм, последовательность, действия, решение"></textarea></div>
+  <div class="field"><label>Ответ студента</label><textarea id="essayAnswer" placeholder="Вставьте ответ студента"></textarea></div>
+  <button class="btn primary" onclick="checkEssay()">Проверить письменный ответ</button>
+  <div id="essayResult"></div>
+ </div>
+</section>
+
+<!-- BUILDER -->
+<section class="page" id="builder">
+ <h1 class="heading">Конструктор тестов</h1>
+ <p class="subtitle">Создавайте собственные тесты и управляйте заданиями.</p>
+ <div class="card">
+  <div class="field"><label>Название теста</label><input id="bName" placeholder="Название учебной темы"></div>
+  <div class="field"><label>Текст вопроса</label><textarea id="bQuestion" placeholder="Введите вопрос"></textarea></div>
+  <div class="form-grid">
+   <div class="field"><label>Вариант A</label><input id="bA"></div>
+   <div class="field"><label>Вариант B</label><input id="bB"></div>
+   <div class="field"><label>Вариант C</label><input id="bC"></div>
+   <div class="field"><label>Вариант D</label><input id="bD"></div>
+  </div>
+  <div class="form-grid">
+   <div class="field"><label>Правильный вариант</label><select id="bCorrect"><option value="0">A</option><option value="1">B</option><option value="2">C</option><option value="3">D</option></select></div>
+   <div class="field"><label>Баллы</label><input type="number" id="bPoints" value="10" min="1" max="100"></div>
+  </div>
+  <button class="btn primary" onclick="addQuestion()">＋ Добавить вопрос</button>
+  <div class="muted" id="builderMsg" style="margin-top:12px"></div>
+ </div>
+ <div class="card">
+  <div class="card-title">Управление тестами</div>
+  <div id="testManagement"></div>
+ </div>
+</section>
+
+<!-- AI ASSISTANT -->
+<section class="page" id="assistant">
+ <h1 class="heading">AI Assistant</h1>
+ <p class="subtitle">Демонстрационный образовательный помощник.</p>
+ <div class="hero">
+  <span class="tag">SMART LEARNING</span>
+  <h2>Ваш учебный помощник</h2>
+  <p>Задавайте вопросы по информатике, программированию и цифровым технологиям.</p>
+ </div>
+ <div class="card">
+  <div class="chat" id="chat">
+   <div class="message">Здравствуйте! Я демонстрационный помощник AI GRADER. Напишите учебный вопрос.</div>
+  </div>
+  <div class="field"><textarea id="chatInput" placeholder="Напишите свой вопрос..."></textarea></div>
+  <button class="btn primary" onclick="sendChat()">Отправить сообщение →</button>
+  <button class="btn secondary" onclick="clearChat()">Очистить чат</button>
+  <p class="muted">Демонстрационный режим: ответы формируются локально по набору учебных правил. Подключение настоящей нейросети требует API и серверной части.</p>
+ </div>
+</section>
+
+<!-- STUDENTS -->
+<section class="page" id="students">
+ <h1 class="heading">Студенты</h1>
+ <p class="subtitle">Управление учебными группами и участниками.</p>
+ <div class="card">
+  <div class="form-grid">
+   <div class="field"><label>ФИО</label><input id="stName" placeholder="Имя студента"></div>
+   <div class="field"><label>Группа</label><input id="stGroup" placeholder="ПО-21"></div>
+  </div>
+  <button class="btn primary" onclick="addStudent()">＋ Добавить студента</button>
+ </div>
+ <div class="card">
+  <div class="card-title">Список студентов</div>
+  <input id="studentSearch" placeholder="Поиск по имени или группе..." oninput="renderStudents()">
+  <div id="studentTable"></div>
+ </div>
+</section>
+
+<!-- BANK -->
+<section class="page" id="bank">
+ <h1 class="heading">База вопросов</h1>
+ <p class="subtitle">Централизованная библиотека учебных заданий.</p>
+ <div class="card">
+  <input id="bankSearch" placeholder="Поиск по вопросам и тестам..." oninput="renderBank()">
+  <div id="bankList" style="margin-top:15px"></div>
+ </div>
+</section>
+
+<!-- HISTORY -->
+<section class="page" id="history">
+ <h1 class="heading">История проверок</h1>
+ <p class="subtitle">Полный журнал выполненных заданий.</p>
+ <div class="card">
+  <div class="actions no-print">
+   <input id="historySearch" placeholder="Поиск студента..." oninput="renderHistory()">
+   <button class="btn secondary" onclick="exportCSV()">Экспорт CSV</button>
+   <button class="btn primary" onclick="window.print()">Печать / PDF</button>
+  </div>
+  <div id="historyTable"></div>
+ </div>
+</section>
+
+<!-- ANALYTICS -->
+<section class="page" id="analytics">
+ <h1 class="heading">Learning Analytics</h1>
+ <p class="subtitle">Анализ учебных результатов и эффективности обучения.</p>
+ <div class="grid">
+  <div class="card"><div class="stat-label">Количество попыток</div><div class="stat-number" id="aCount">0</div></div>
+  <div class="card"><div class="stat-label">Средняя оценка</div><div class="stat-number" id="aAvg">0%</div></div>
+  <div class="card"><div class="stat-label">Успешность</div><div class="stat-number" id="aPass">0%</div></div>
+  <div class="card"><div class="stat-label">Лучший результат</div><div class="stat-number" id="aBest">0%</div></div>
+ </div>
+ <div class="two">
+  <div class="card"><div class="card-title">Распределение результатов</div><div id="distribution"></div></div>
+  <div class="card"><div class="card-title">Средние результаты тестов</div><div id="testAnalytics"></div></div>
+ </div>
+ <div class="card">
+  <div class="card-title">Рекомендации системы</div>
+  <div id="recommendations"></div>
+ </div>
+</section>
+
+<!-- LEADERBOARD -->
+<section class="page" id="leaderboard">
+ <h1 class="heading">Leaderboard</h1>
+ <p class="subtitle">Рейтинг студентов по среднему результату.</p>
+ <div class="card"><div id="leaders"></div></div>
+</section>
+
+<!-- REPORTS -->
+<section class="page" id="reports">
+ <h1 class="heading">Отчёты</h1>
+ <p class="subtitle">Формирование аналитических документов.</p>
+ <div class="grid">
+  <div class="card"><div class="stat-label">Проверок</div><div class="stat-number" id="rCount">0</div></div>
+  <div class="card"><div class="stat-label">Студентов</div><div class="stat-number" id="rStudents">0</div></div>
+  <div class="card"><div class="stat-label">Средний результат</div><div class="stat-number" id="rAvg">0%</div></div>
+  <div class="card"><div class="stat-label">Вопросов</div><div class="stat-number" id="rQuestions">0</div></div>
+ </div>
+ <div class="card">
+  <div class="card-title">Генерация отчёта</div>
+  <p class="muted">Сформируйте сводку по результатам тестирования.</p>
+  <div class="actions">
+   <button class="btn primary" onclick="reportPDF()">Сформировать PDF</button>
+   <button class="btn secondary" onclick="exportCSV()">Скачать CSV</button>
+   <button class="btn secondary" onclick="backup()">Резервная копия JSON</button>
+  </div>
+  <div id="reportContent" style="margin-top:20px"></div>
+ </div>
+</section>
+
+<!-- SETTINGS -->
+<section class="page" id="settings">
+ <h1 class="heading">Настройки системы</h1>
+ <p class="subtitle">Параметры платформы и управление данными.</p>
+ <div class="card">
+  <div class="field"><label>Название платформы</label><input id="settingName" value="AI GRADER"></div>
+  <div class="field"><label>Проходной балл (%)</label><input id="settingPass" type="number" min="1" max="100" value="50"></div>
+  <button class="btn primary" onclick="saveSettings()">Сохранить настройки</button>
+ </div>
+ <div class="card">
+  <div class="card-title">Управление данными</div>
+  <div class="actions">
+   <button class="btn secondary" onclick="backup()">Экспорт данных</button>
+   <button class="btn secondary" onclick="$('restoreFile').click()">Импорт данных</button>
+   <input type="file" id="restoreFile" accept=".json" hidden onchange="restore(event)">
+   <button class="btn danger" onclick="resetAll()">Сбросить данные</button>
+  </div>
+  <p class="muted">Перед восстановлением данных рекомендуется создать резервную копию.</p>
+ </div>
+</section>
+
+<div class="footer">AI GRADER 2.0 · PROFESSIONAL EDUCATION PLATFORM · 2026</div>
+</main>
+</div>
+<div id="toast"></div>
+
+<script>
+const $=id=>document.getElementById(id);
+const read=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))??d}catch{return d}};
+const write=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
+
+let questions=read('ag2_questions',[
+ {id:1,test:'Основы информатики',q:'Что означает аббревиатура ИИ?',opts:['Искусственный интеллект','Интернет-информация','Интерактивный интерфейс','Информационная инструкция'],correct:0,points:10},
+ {id:2,test:'Основы информатики',q:'Что такое алгоритм?',opts:['Компьютерная игра','Последовательность действий для решения задачи','База данных','Операционная система'],correct:1,points:10},
+ {id:3,test:'Основы информатики',q:'Для чего применяется Git?',opts:['Монтаж видео','Создание изображений','Контроль версий кода','Работа с музыкой'],correct:2,points:10},
+ {id:4,test:'Основы информатики',q:'Что такое фишинг?',opts:['Язык программирования','Вид базы данных','Графический редактор','Мошенническая попытка получения данных'],correct:3,points:10},
+ {id:5,test:'Основы информатики',q:'Что такое база данных?',opts:['Организованное хранилище информации','Антивирус','Компьютерная игра','Монитор'],correct:0,points:10},
+ {id:6,test:'Основы информатики',q:'Что означает HTML?',opts:['Язык запросов','Язык разметки веб-страниц','Операционная система','Графический редактор'],correct:1,points:10},
+ {id:7,test:'Основы информатики',q:'Какой оператор используется для условия в Python?',opts:['print','input','if','import'],correct:2,points:10}
+]);
+let history=read('ag2_history',[]);
+let students=read('ag2_students',[]);
+let settings=read('ag2_settings',{pass:50,name:'AI GRADER'});
+let selected=[];
+let currentPage='dashboard';
+
+function save(){
+ write('ag2_questions',questions);
+ write('ag2_history',history);
+ write('ag2_students',students);
+ write('ag2_settings',settings);
+}
+function toast(msg){
+ const t=$('toast');t.textContent=msg;t.style.display='block';
+ clearTimeout(window.toastTimer);
+ window.toastTimer=setTimeout(()=>t.style.display='none',2600);
+}
+function esc(v){
+ return String(v??'').replace(/[&<>"']/g,c=>({
+ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+ }[c]));
+}
+const titles={
+ dashboard:'Главная панель',checker:'Проверка знаний',builder:'Конструктор тестов',
+ assistant:'AI Assistant',students:'Студенты',bank:'База вопросов',
+ history:'История проверок',analytics:'Learning Analytics',
+ leaderboard:'Рейтинг студентов',reports:'Отчёты',settings:'Настройки'
+};
+function go(id,btn){
+ currentPage=id;
+ document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+ $(id).classList.add('active');
+ document.querySelectorAll('.nav').forEach(x=>x.classList.remove('active'));
+ const nav=btn||[...document.querySelectorAll('.nav')].find(x=>x.getAttribute('onclick')?.includes("'"+id+"'"));
+ if(nav)nav.classList.add('active');
+ $('pageTitle').textContent=titles[id];
+ renderAll();
+ window.scrollTo(0,0);
+}
+function roleChange(){
+ const student=$('role').value==='student';
+ document.querySelectorAll('.nav').forEach(n=>{
+  const t=n.innerText;
+  n.style.display=student&&(
+   t.includes('Конструктор')||t.includes('Студенты')||
+   t.includes('Настройки')||t.includes('Отчёты')
+  )?'none':'flex';
+ });
+ go(student?'checker':'dashboard');
+}
+function tests(){
+ return [...new Set(questions.map(q=>q.test))];
+}
+function avg(){
+ return history.length?Math.round(history.reduce((a,h)=>a+h.percent,0)/history.length):0;
+}
+function bars(items){
+ return items.map(([name,value])=>`
+ <div class="bar-row"><span title="${esc(name)}">${esc(name).slice(0,15)}</span>
+ <div class="bar"><i style="width:${Math.max(0,Math.min(100,value))}%"></i></div>
+ <b>${value}%</b></div>`).join('');
+}
+
+// TESTS
+function renderQuiz(){
+ const name=$('checkTest').value;
+ selected=questions.filter(q=>q.test===name);
+ $('quiz').innerHTML=selected.length?selected.map((q,i)=>`
+ <div class="question">
+  <h3>${i+1}. ${esc(q.q)} <span class="tag">${q.points} баллов</span></h3>
+  ${q.opts.map((o,j)=>`
+  <label class="option"><input type="radio" name="answer${q.id}" value="${j}">
+  ${String.fromCharCode(65+j)}. ${esc(o)}</label>`).join('')}
+ </div>`).join(''):'<div class="empty">Вопросов пока нет.</div>';
+ $('quizResult').innerHTML='';
+}
+function submitQuiz(){
+ if(!selected.length)return toast('Сначала выберите тест.');
+ const name=$('checkName').value.trim();
+ const group=$('checkGroup').value.trim();
+ if(!name||!group)return toast('Укажите имя и группу студента.');
+ let earned=0,total=0,details=[];
+ selected.forEach(q=>{
+  total+=q.points;
+  const checked=document.querySelector(`input[name="answer${q.id}"]:checked`);
+  const answer=checked?Number(checked.value):-1;
+  const correct=answer===q.correct;
+  if(correct)earned+=q.points;
+  details.push({q:q.q,correct,answer,key:q.correct});
+ });
+ const percent=total?Math.round(earned/total*100):0;
+ const result={
+  id:Date.now(),name,group,test:selected[0].test,earned,total,
+  percent,date:new Date().toLocaleString('ru-RU'),
+  passed:percent>=settings.pass,details
+ };
+ history.unshift(result);
+ if(!students.some(s=>s.name.toLowerCase()===name.toLowerCase()&&s.group===group)){
+  students.push({id:Date.now()+1,name,group});
+ }
+ save();
+ $('quizResult').innerHTML=`
+ <div class="result">
+  <div class="muted">ИТОГОВЫЙ РЕЗУЛЬТАТ</div>
+  <div class="score">${percent}%</div>
+  <h3>${earned} / ${total} баллов</h3>
+  <span class="${result.passed?'green':'red'}">${result.passed?'✓ Тест успешно пройден':'Требуется дополнительная подготовка'}</span>
+  <div style="margin-top:18px">
+  ${details.map((d,i)=>`
+  <div class="activity">
+   <span>${d.correct?'✓':'✗'} ${esc(d.q)}<br>
+   <span class="muted">Правильный ответ: ${String.fromCharCode(65+d.key)}</span></span>
+   <b class="${d.correct?'green':'red'}">${d.correct?'+'+selected[i].points:'0'}</b>
+  </div>`).join('')}
+  </div>
+  <button class="btn primary no-print" onclick="window.print()">Сохранить результат PDF</button>
+ </div>`;
+ renderAll();
+ toast('Результат сохранён.');
+}
+
+// QUESTION BUILDER
+function addQuestion(){
+ const test=$('bName').value.trim();
+ const q=$('bQuestion').value.trim();
+ const opts=['A','B','C','D'].map(x=>$('b'+x).value.trim());
+ const points=Number($('bPoints').value);
+ if(!test||!q||opts.some(x=>!x))return toast('Заполните все поля.');
+ if(!Number.isInteger(points)||points<1||points>100)return toast('Баллы: от 1 до 100.');
+ questions.push({
+  id:Date.now(),test,q,opts,points,correct:Number($('bCorrect').value)
+ });
+ save();
+ $('bQuestion').value='';
+ ['A','B','C','D'].forEach(x=>$('b'+x).value='');
+ $('builderMsg').textContent='✓ Вопрос добавлен в базу.';
+ renderAll();toast('Вопрос успешно создан.');
+}
+function deleteQuestion(id){
+ if(!confirm('Удалить вопрос?'))return;
+ questions=questions.filter(q=>q.id!==id);
+ save();renderAll();toast('Вопрос удалён.');
+}
+function renameTest(oldName){
+ const n=prompt('Новое название теста:',oldName);
+ if(!n||!n.trim())return;
+ questions.forEach(q=>{if(q.test===oldName)q.test=n.trim()});
+ save();renderAll();toast('Название обновлено.');
+}
+function deleteTest(name){
+ if(!confirm('Удалить весь тест и его вопросы?'))return;
+ questions=questions.filter(q=>q.test!==name);
+ save();renderAll();toast('Тест удалён.');
+}
+
+// STUDENTS
+function addStudent(){
+ const name=$('stName').value.trim();
+ const group=$('stGroup').value.trim();
+ if(!name||!group)return toast('Заполните имя и группу.');
+ if(students.some(s=>s.name.toLowerCase()===name.toLowerCase()&&s.group===group))
+  return toast('Такой студент уже есть.');
+ students.push({id:Date.now(),name,group});
+ save();$('stName').value='';$('stGroup').value='';
+ renderAll();toast('Студент добавлен.');
+}
+function deleteStudent(id){
+ if(!confirm('Удалить студента?'))return;
+ students=students.filter(s=>s.id!==id);
+ save();renderAll();
+}
+function renderStudents(){
+ const search=$('studentSearch').value.toLowerCase();
+ const list=students.filter(s=>(s.name+' '+s.group).toLowerCase().includes(search));
+ $('studentTable').innerHTML=list.length?list.map(s=>`
+ <div class="activity"><span><b>${esc(s.name)}</b><br><span class="muted">${esc(s.group)}</span></span>
+ <button class="btn danger" onclick="deleteStudent(${s.id})">Удалить</button></div>`
+ ).join(''):'<div class="empty">Студенты не найдены.</div>';
+}
+
+// BANK
+function renderBank(){
+ const search=$('bankSearch').value.toLowerCase();
+ const list=questions.filter(q=>(q.q+' '+q.test).toLowerCase().includes(search));
+ $('bankList').innerHTML=list.length?list.map((q,i)=>`
+ <div class="question">
+  <h3>${i+1}. ${esc(q.q)}</h3>
+  <div class="muted">${esc(q.test)} · ${q.points} баллов</div>
+  <div class="muted">Правильный вариант: ${String.fromCharCode(65+q.correct)}</div>
+  <button class="btn danger" style="margin-top:10px" onclick="deleteQuestion(${q.id})">Удалить</button>
+ </div>`).join(''):'<div class="empty">Вопросы не найдены.</div>';
+}
+
+// HISTORY
+function renderHistory(){
+ const search=$('historySearch').value.toLowerCase();
+ const list=history.filter(h=>(h.name+' '+h.group+' '+h.test).toLowerCase().includes(search));
+ $('historyTable').innerHTML=list.length?`
+ <table><thead><tr><th>Студент</th><th>Группа</th><th>Тест</th><th>Результат</th><th>Дата</th></tr></thead>
+ <tbody>${list.map(h=>`<tr>
+ <td>${esc(h.name)}</td><td>${esc(h.group)}</td><td>${esc(h.test)}</td>
+ <td class="${h.passed?'green':'red'}">${h.percent}%</td><td>${esc(h.date)}</td>
+ </tr>`).join('')}</tbody></table>`:'<div class="empty">История пуста.</div>';
+}
+
+// ANALYTICS
+function renderAnalytics(){
+ $('aCount').textContent=history.length;
+ $('aAvg').textContent=avg()+'%';
+ $('aPass').textContent=history.length?Math.round(history.filter(h=>h.passed).length/history.length*100)+'%':'0%';
+ $('aBest').textContent=history.length?Math.max(...history.map(h=>h.percent))+'%':'0%';
+ const ranges=[
+ ['0–49%',history.filter(h=>h.percent<50).length],
+ ['50–69%',history.filter(h=>h.percent>=50&&h.percent<70).length],
+ ['70–89%',history.filter(h=>h.percent>=70&&h.percent<90).length],
+ ['90–100%',history.filter(h=>h.percent>=90).length]
+ ];
+ const max=Math.max(1,...ranges.map(x=>x[1]));
+ $('distribution').innerHTML=ranges.map(([n,v])=>`
+ <div class="bar-row"><span>${n}</span><div class="bar"><i style="width:${v/max*100}%"></i></div><b>${v}</b></div>`).join('');
+ const grouped={};
+ history.forEach(h=>{
+  grouped[h.test]??=[];
+  grouped[h.test].push(h.percent);
+ });
+ $('testAnalytics').innerHTML=Object.entries(grouped).length?
+ bars(Object.entries(grouped).map(([n,v])=>[n,Math.round(v.reduce((a,b)=>a+b,0)/v.length)])):
+ '<div class="empty">Недостаточно данных.</div>';
+ let weak=questions.filter(q=>{
+  const attempts=history.flatMap(h=>h.details||[]).filter(d=>d.q===q.q);
+  return attempts.length>=1&&attempts.filter(d=>!d.correct).length/attempts.length>.5;
+ });
+ $('recommendations').innerHTML=weak.length?
+ weak.map(q=>`<div class="activity"><span>${esc(q.q)}</span><span class="yellow">Требует повторения</span></div>`).join(''):
+ '<div class="empty">Пока нет вопросов с выраженными трудностями. Проведите больше проверок для анализа.</div>';
+}
+
+// LEADERBOARD
+function renderLeaders(){
+ const rank={};
+ history.forEach(h=>{
+  const key=h.name+'|'+h.group;
+  rank[key]??={name:h.name,group:h.group,sum:0,count:0};
+  rank[key].sum+=h.percent;rank[key].count++;
+ });
+ const list=Object.values(rank).map(x=>({...x,avg:Math.round(x.sum/x.count)}))
+ .sort((a,b)=>b.avg-a.avg);
+ $('leaders').innerHTML=list.length?list.map((x,i)=>`
+ <div class="activity">
+ <span>${['🥇','🥈','🥉'][i]||'★'} <b>${esc(x.name)}</b><br><span class="muted">${esc(x.group)} · ${x.count} проверок</span></span>
+ <b class="green">${x.avg}%</b></div>`).join(''):'<div class="empty">Рейтинг появится после тестирования.</div>';
+}
+
+// AI TEXT CHECKER (LOCAL DEMO)
+function checkEssay(){
+ const question=$('essayQuestion').value.trim();
+ const keys=$('essayKeys').value.trim();
+ const answer=$('essayAnswer').value.trim();
+ if(!question||!keys||!answer)return toast('Заполните все три поля.');
+ const words=keys.split(/[,;\n]+/).map(x=>x.trim().toLowerCase()).filter(Boolean);
+ const normalized=answer.toLowerCase();
+ const found=words.filter(w=>normalized.includes(w));
+ const missing=words.filter(w=>!normalized.includes(w));
+ const percent=Math.round(found.length/words.length*100);
+ $('essayResult').innerHTML=`
+ <div class="result">
+  <div class="muted">ПРЕДВАРИТЕЛЬНАЯ ОЦЕНКА ПО КЛЮЧЕВЫМ СЛОВАМ</div>
+  <div class="score">${percent}%</div>
+  <div class="progress"><i style="width:${percent}%"></i></div>
+  <p class="green">Найдено понятий: ${found.length}</p>
+  <p class="red">Не найдено понятий: ${missing.length}</p>
+  <p class="muted">Совпадения: ${found.map(esc).join(', ')||'Нет'}</p>
+  <p class="muted">Не найдены: ${missing.map(esc).join(', ')||'Нет'}</p>
+  <p class="muted">Это предварительная проверка наличия ключевых слов, а не полноценное понимание смысла ответа. Итоговую оценку должен подтвердить преподаватель.</p>
+ </div>`;
+}
+
+// LOCAL EDUCATIONAL ASSISTANT
+function sendChat(){
+ const input=$('chatInput').value.trim();
+ if(!input)return;
+ const chat=$('chat');
+ const message=document.createElement('div');
+ message.className='message me';message.textContent=input;chat.appendChild(message);
+ const response=document.createElement('div');
+ response.className='message';
+ response.textContent=localAnswer(input);
+ chat.appendChild(response);
+ $('chatInput').value='';chat.scrollTop=chat.scrollHeight;
+}
+function localAnswer(q){
+ const s=q.toLowerCase();
+ if(s.includes('алгоритм'))return 'Алгоритм — это конечная последовательность понятных действий, которая приводит к решению определённой задачи. Основные свойства: определённость, дискретность, результативность и массовость.';
+ if(s.includes('python'))return 'Python — высокоуровневый язык программирования. Он применяется для разработки программ, анализа данных, автоматизации и работы с искусственным интеллектом.';
+ if(s.includes('git'))return 'Git — распределённая система контроля версий. Она позволяет сохранять изменения проекта, создавать ветки и совместно работать над кодом.';
+ if(s.includes('база данных'))return 'База данных — организованная совокупность информации. Для управления данными часто применяются реляционные СУБД и SQL.';
+ if(s.includes('фишинг'))return 'Фишинг — вид интернет-мошенничества, при котором злоумышленники пытаются получить конфиденциальные сведения под видом доверенного источника.';
+ if(s.includes('ии')||s.includes('искусственный интеллект'))return 'Искусственный интеллект — область компьютерных наук, связанная с созданием систем, выполняющих задачи, требующие анализа, распознавания и принятия решений.';
+ if(s.includes('html'))return 'HTML — язык разметки веб-страниц. Он определяет структуру сайта с помощью элементов и тегов.';
+ return 'В демонстрационной версии нет подходящего готового ответа. Для полноценного анализа вопроса подключите языковую модель через защищённый серверный API.';
+}
+function clearChat(){
+ $('chat').innerHTML='<div class="message">Чат очищен. Задайте новый учебный вопрос.</div>';
+}
+
+// REPORTS
+function reportPDF(){
+ const avgValue=avg();
+ $('reportContent').innerHTML=`
+ <h2>AI GRADER — Отчёт об успеваемости</h2>
+ <p>Дата формирования: ${new Date().toLocaleString('ru-RU')}</p>
+ <p>Количество студентов: ${students.length}</p>
+ <p>Количество проверок: ${history.length}</p>
+ <p>Количество вопросов: ${questions.length}</p>
+ <p>Средний результат: ${avgValue}%</p>
+ <h3>Результаты студентов</h3>
+ ${history.map(h=>`<p>${esc(h.name)} (${esc(h.group)}) — ${esc(h.test)}: ${h.percent}%</p>`).join('')||'Пока нет данных.'}`;
+ window.print();
+}
+function exportCSV(){
+ const rows=[['Имя','Группа','Тест','Баллы','Максимум','Процент','Дата'],
+ ...history.map(h=>[h.name,h.group,h.test,h.earned,h.total,h.percent+'%',h.date])];
+ const data='\uFEFF'+rows.map(r=>r.map(x=>'"'+String(x).replace(/"/g,'""')+'"').join(';')).join('\n');
+ download(new Blob([data],{type:'text/csv;charset=utf-8'}),'AI-GRADER-results.csv');
+ toast('CSV сформирован.');
+}
+
+// SETTINGS AND BACKUP
+function saveSettings(){
+ const pass=Number($('settingPass').value);
+ if(!Number.isInteger(pass)||pass<1||pass>100)return toast('Укажите процент от 1 до 100.');
+ settings.pass=pass;
+ settings.name=$('settingName').value.trim()||'AI GRADER';
+ save();toast('Настройки сохранены.');
+}
+function download(blob,name){
+ const a=document.createElement('a');
+ const url=URL.createObjectURL(blob);
+ a.href=url;a.download=name;a.click();
+ setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+function backup(){
+ const data={questions,history,students,settings,version:2};
+ download(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),'ai-grader-backup.json');
+ toast('Резервная копия готова.');
+}
+function restore(e){
+ const file=e.target.files[0];if(!file)return;
+ const reader=new FileReader();
+ reader.onload=()=>{
+ try{
+  const d=JSON.parse(reader.result);
+  if(!Array.isArray(d.questions)||!Array.isArray(d.history)||!Array.isArray(d.students)||!d.settings)throw Error();
+  questions=d.questions;history=d.history;students=d.students;settings=d.settings;
+  save();renderAll();toast('Данные восстановлены.');
+ }catch{toast('Ошибка формата резервной копии.');}
+ e.target.value='';
+ };
+ reader.readAsText(file);
+}
+function resetAll(){
+ if(!confirm('Удалить все вопросы, результаты, студентов и настройки?'))return;
+ questions=[];history=[];students=[];settings={pass:50,name:'AI GRADER'};
+ save();renderAll();toast('Данные очищены.');
+}
+
+// RENDER
+function renderDashboard(){
+ $('sStudents').textContent=students.length;
+ $('sChecks').textContent=history.length;
+ $('sAvg').textContent=avg()+'%';
+ $('sQuestions').textContent=questions.length;
+ $('recent').innerHTML=history.slice(0,6).map(h=>`
+ <div class="activity"><span>${esc(h.name)}<br><span class="muted">${esc(h.test)}</span></span><b class="${h.passed?'green':'red'}">${h.percent}%</b></div>`
+ ).join('')||'<div class="empty">Результаты появятся после тестирования.</div>';
+ const grouped={};
+ history.forEach(h=>{grouped[h.test]??=[];grouped[h.test].push(h.percent)});
+ $('dashboardBars').innerHTML=Object.entries(grouped).length?
+ bars(Object.entries(grouped).map(([n,v])=>[n,Math.round(v.reduce((a,b)=>a+b,0)/v.length)])):
+ '<div class="empty">Пока нет статистики.</div>';
+}
+function renderBuilder(){
+ const groups=tests();
+ $('testManagement').innerHTML=groups.length?groups.map(t=>{
+  const count=questions.filter(q=>q.test===t).length;
+  return `<div class="activity"><span><b>${esc(t)}</b><br><span class="muted">${count} вопросов</span></span>
+  <div class="actions">
+  <button class="btn secondary" onclick="renameTest(${JSON.stringify(t).replace(/</g,'\\u003c')})">Переименовать</button>
+  <button class="btn danger" onclick="deleteTest(${JSON.stringify(t).replace(/</g,'\\u003c')})">Удалить</button>
+  </div></div>`;
+ }).join(''):'<div class="empty">Тестов пока нет.</div>';
+}
+function renderReports(){
+ $('rCount').textContent=history.length;
+ $('rStudents').textContent=students.length;
+ $('rAvg').textContent=avg()+'%';
+ $('rQuestions').textContent=questions.length;
+}
+function renderAll(){
+ renderDashboard();
+ renderBuilder();
+ renderStudents();
+ renderBank();
+ renderHistory();
+ renderAnalytics();
+ renderLeaders();
+ renderReports();
+ const old=$('checkTest').value;
+ $('checkTest').innerHTML=tests().map(t=>`<option value="${esc(t)}">${esc(t)}</option>`).join('');
+ if(tests().includes(old))$('checkTest').value=old;
+ renderQuiz();
+}
+$('settingPass').value=settings.pass;
+$('settingName').value=settings.name;
+renderAll();
+</script>
+</body>
+</html>
